@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wake &amp; Earn — Screen Time You Deserve</title>
+  <meta name="description" content="An alarm clock that locks your social media until you do something productive. Dismiss with pushups, math, or shake. Earn screen time by reading, walking, or exercising." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --orange: #FF9500;
+      --orange-dim: rgba(255, 149, 0, 0.15);
+      --orange-glow: rgba(255, 149, 0, 0.08);
+      --bg: #050505;
+      --surface: #0E0E0E;
+      --surface-2: #161616;
+      --text: #F0F0F0;
+      --text-dim: #999;
+      --text-muted: #666;
+      --border: #1A1A1A;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 0; background: rgba(5,5,5,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+    nav.scrolled { border-bottom-color: var(--border); }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-weight: 700; font-size: 18px; color: var(--orange); text-decoration: none; letter-spacing: -0.02em; }
+    .nav-cta { font-size: 14px; font-weight: 600; color: var(--bg); background: var(--orange); padding: 10px 24px; border-radius: 100px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(255,149,0,0.3); }
+
+    .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; padding: 120px 32px 80px; }
+    .hero-glow { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,149,0,0.08) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+    .hero-content { position: relative; z-index: 2; max-width: 700px; }
+    .hero-badge { display: inline-block; font-size: 12px; font-weight: 600; color: var(--orange); background: var(--orange-dim); padding: 6px 16px; border-radius: 100px; margin-bottom: 32px; letter-spacing: 0.04em; text-transform: uppercase; animation: fadeUp 0.8s ease both; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(42px,7vw,72px); font-weight: 700; line-height: 1.1; margin-bottom: 24px; animation: fadeUp 0.8s ease 0.1s both; }
+    .hero h1 em { color: var(--orange); font-style: italic; }
+    .hero p { font-size: 18px; color: var(--text-dim); max-width: 520px; margin: 0 auto 40px; line-height: 1.7; animation: fadeUp 0.8s ease 0.2s both; }
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.8s ease 0.3s both; }
+    .btn-primary { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: var(--bg); background: var(--orange); padding: 16px 36px; border-radius: 100px; text-decoration: none; border: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,149,0,0.3); }
+    .btn-ghost { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; color: var(--text-dim); background: transparent; padding: 16px 36px; border-radius: 100px; text-decoration: none; border: 1px solid var(--border); transition: border-color 0.2s, color 0.2s; }
+    .btn-ghost:hover { border-color: var(--text-muted); color: var(--text); }
+
+    .horizon { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--orange), transparent); opacity: 0.3; }
+
+    .how { padding: 120px 32px; max-width: 1100px; margin: 0 auto; }
+    .section-label { font-size: 12px; font-weight: 600; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(28px,4vw,42px); font-weight: 700; margin-bottom: 64px; max-width: 500px; }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .step { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; transition: border-color 0.3s, transform 0.3s; }
+    .step:hover { border-color: rgba(255,149,0,0.3); transform: translateY(-4px); }
+    .step-num { font-size: 48px; font-weight: 700; color: rgba(255,149,0,0.12); font-family: 'Playfair Display', serif; margin-bottom: 16px; }
+    .step-icon { font-size: 28px; margin-bottom: 16px; }
+    .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .step p { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+
+    .features { padding: 120px 32px; max-width: 1100px; margin: 0 auto; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 36px 28px; transition: border-color 0.3s; }
+    .feature:hover { border-color: rgba(255,149,0,0.2); }
+    .feature-icon { width: 48px; height: 48px; background: var(--orange-dim); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 20px; }
+    .feature h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .feature p { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+    .feature .pro-badge { display: inline-block; font-size: 10px; font-weight: 700; color: var(--bg); background: var(--orange); padding: 2px 8px; border-radius: 100px; margin-left: 8px; vertical-align: middle; }
+
+    .stats { padding: 80px 32px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .stats-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; text-align: center; }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 700; color: var(--orange); margin-bottom: 8px; }
+    .stat-label { font-size: 14px; color: var(--text-dim); }
+
+    .pricing { padding: 120px 32px; max-width: 800px; margin: 0 auto; text-align: center; }
+    .pricing-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 64px; }
+    .pricing-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 40px 32px; text-align: left; position: relative; transition: border-color 0.3s; }
+    .pricing-card:hover { border-color: rgba(255,149,0,0.2); }
+    .pricing-card.featured { border-color: var(--orange); background: linear-gradient(180deg, rgba(255,149,0,0.06) 0%, var(--surface) 100%); }
+    .pricing-tag { position: absolute; top: -12px; right: 24px; background: var(--orange); color: var(--bg); font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pricing-tier { font-size: 14px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+    .pricing-price { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; margin-bottom: 4px; }
+    .pricing-period { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+    .pricing-features { list-style: none; margin: 0; padding: 0; }
+    .pricing-features li { font-size: 14px; color: var(--text-dim); padding: 8px 0; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .pricing-features li::before { content: '✓'; color: var(--orange); font-weight: 700; font-size: 13px; }
+
+    .cta { padding: 120px 32px; text-align: center; position: relative; }
+    .cta-glow { position: absolute; width: 500px; height: 300px; background: radial-gradient(ellipse, rgba(255,149,0,0.06) 0%, transparent 70%); bottom: 0; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    .cta h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px,4vw,48px); font-weight: 700; margin-bottom: 20px; position: relative; }
+    .cta p { font-size: 18px; color: var(--text-dim); margin-bottom: 40px; position: relative; }
+
+    footer { border-top: 1px solid var(--border); padding: 40px 32px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-left { font-size: 13px; color: var(--text-muted); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      .steps { grid-template-columns: 1fr 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: 1fr; gap: 32px; }
+      .pricing-cards { grid-template-columns: 1fr; }
+      .hero { min-height: auto; padding: 140px 24px 80px; }
+      .how, .features, .pricing, .cta { padding: 80px 24px; }
+    }
+    @media (max-width: 480px) {
+      .steps { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">Wake &amp; Earn</a>
+    <a href="#download" class="nav-cta">Download</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Free on the App Store</div>
+    <h1>Your screen time.<br/><em>Earned.</em></h1>
+    <p>An alarm clock that locks your social media until you do something productive. Dismiss with pushups. Earn time by reading. Wind down at bedtime.</p>
+    <div class="hero-actions">
+      <a href="#download" class="btn-primary">Download Free</a>
+      <a href="#how" class="btn-ghost">How it works</a>
+    </div>
+  </div>
+</section>
+
+<div class="horizon"></div>
+
+<section class="how" id="how">
+  <div class="reveal">
+    <div class="section-label">How it works</div>
+    <div class="section-title">Four steps between you and your apps.</div>
+  </div>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <div class="step-icon">⏰</div>
+      <h3>Set your alarm</h3>
+      <p>Pick a time. Pick a dismiss task: pushups, math, shake, or type a phrase.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <div class="step-icon">💪</div>
+      <h3>Dismiss it</h3>
+      <p>Alarm goes off. Complete the task to prove you're awake. No snoozing through pushups.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <div class="step-icon">📖</div>
+      <h3>Earn your time</h3>
+      <p>Read. Meditate. Walk. Do pushups. Every minute of effort unlocks a minute of screen time.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">04</div>
+      <div class="step-icon">🔓</div>
+      <h3>Apps unlock</h3>
+      <p>You earned it. Instagram, TikTok, X — they're yours. Until tomorrow morning.</p>
+    </div>
+  </div>
+</section>
+
+<div class="horizon"></div>
+
+<section class="features" id="features">
+  <div class="reveal">
+    <div class="section-label">Features</div>
+    <div class="section-title">Everything you need. Nothing you don't.</div>
+  </div>
+  <div class="feature-grid">
+    <div class="feature reveal">
+      <div class="feature-icon">💪</div>
+      <h3>Pushup Detection<span class="pro-badge">PRO</span></h3>
+      <p>Camera-based rep counting. Do pushups to dismiss your alarm or earn screen time. Your body and your brain both win.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon">🔒</div>
+      <h3>App Blocking</h3>
+      <p>You pick the apps. TikTok, Instagram, X, games — whatever steals your morning. Essential apps are never touched.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon">🌙</div>
+      <h3>Bedtime Lock<span class="pro-badge">PRO</span></h3>
+      <p>Apps auto-lock at bedtime. Wind-down reminders before lights out. See your morning report card when you wake up.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon">🚶</div>
+      <h3>Step Tracking</h3>
+      <p>1,000 steps earns 1 minute of screen time. Tracked automatically through HealthKit. Walk to work, earn your scroll.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon">⏱️</div>
+      <h3>Timer Tasks</h3>
+      <p>Reading, meditation, or create your own custom tasks. Set the timer, do the work, earn the time.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon">🔥</div>
+      <h3>Streaks &amp; Stats</h3>
+      <p>Track your consistency with daily and weekly views. Build the habit. See how far you've come.</p>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stats-inner reveal">
+    <div>
+      <div class="stat-value">0</div>
+      <div class="stat-label">Ads in the app</div>
+    </div>
+    <div>
+      <div class="stat-value">0</div>
+      <div class="stat-label">Data sold to third parties</div>
+    </div>
+    <div>
+      <div class="stat-value">100%</div>
+      <div class="stat-label">On-device. Your data stays yours.</div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="reveal">
+    <div class="section-label">Pricing</div>
+    <div class="section-title" style="max-width: 500px; margin: 0 auto;">Most features are free. Forever.</div>
+  </div>
+  <div class="pricing-cards">
+    <div class="pricing-card reveal">
+      <div class="pricing-tier">Free</div>
+      <div class="pricing-price">$0</div>
+      <div class="pricing-period">No credit card. No catch.</div>
+      <ul class="pricing-features">
+        <li>1 alarm with math dismiss</li>
+        <li>App blocking</li>
+        <li>Timer-based earning (reading, meditation)</li>
+        <li>Step tracking</li>
+        <li>Streaks &amp; daily stats</li>
+      </ul>
+    </div>
+    <div class="pricing-card featured reveal">
+      <div class="pricing-tag">7-DAY FREE TRIAL</div>
+      <div class="pricing-tier">Pro</div>
+      <div class="pricing-price">$29.99</div>
+      <div class="pricing-period">per year, or $4.99/month</div>
+      <ul class="pricing-features">
+        <li>Everything in Free</li>
+        <li>Unlimited alarms</li>
+        <li>Pushup detection dismiss task</li>
+        <li>Shake &amp; type phrase dismiss tasks</li>
+        <li>Bedtime lock system</li>
+        <li>Custom earning tasks</li>
+        <li>Morning buffer period</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="horizon"></div>
+
+<section class="cta" id="download">
+  <div class="cta-glow"></div>
+  <div class="reveal">
+    <h2>Tomorrow morning starts tonight.</h2>
+    <p>Set the alarm. Lock the apps. Earn the time.</p>
+    <a href="#" class="btn-primary">Download Wake &amp; Earn</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">&copy; 2026 Alex Behling. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Service</a>
+      <a href="/cdn-cgi/l/email-protection#becdcbceced1cccafec9dfd5dbdfd0dadbdfccd0d090ddd1d3">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  });
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, index) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => { entry.target.classList.add('visible'); }, index * 80);
+        observer.unobserve(entry
